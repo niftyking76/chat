@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Open Message Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 16px;
+    }
+    h1 {
+      text-align: center;
+    }
+    #messages {
+      max-width: 600px;
+      margin: 16px auto;
+      padding: 8px;
+      background: #020617;
+      border-radius: 8px;
+      height: 60vh;
+      overflow-y: auto;
+    }
+    .msg {
+      margin-bottom: 8px;
+      padding: 6px 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    #form {
+      max-width: 600px;
+      margin: auto;
+      display: flex;
+      gap: 8px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 14px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      background: #22c55e;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📢 Open Message Board</h1>
+
+<div id="messages"></div>
+
+<div id="form">
+  <input id="messageInput" placeholder="Type your message..." />
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const messagesRef = db.ref("messages");
+
+  function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    messagesRef.push({
+      text,
+      time: Date.now()
+    });
+
+    input.value = "";
+  }
+
+  messagesRef.limitToLast(100).on("child_added", snap => {
+    const msg = snap.val();
+    const div = document.createElement("div");
+    div.className = "msg";
+    div.textContent = msg.text;
+    document.getElementById("messages").appendChild(div);
+    document.getElementById("messages").scrollTop = 999999;
+  });
+</script>
+
+</body>
+</html>
